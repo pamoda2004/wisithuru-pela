@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  WHOLESALE_BUYER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum CareLevel {
+  EASY
+  MODERATE
+  EXPERT
+}
+
+model User {
+  id              String   @id @default(cuid())
+  name            String?
+  email           String   @unique
+  phone           String?
+  passwordHash    String?
+  role            Role     @default(CUSTOMER)
+  locale          String   @default("en")
+  district        String?
+  whatsappNumber  String?
+  isVerified      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  nameSi      String?
+  nameTa      String?
+  slug        String     @unique
+  image       String?
+  parentId    String?
+  parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryToCategory")
+  products    Product[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Product {
+  id               String     @id @default(cuid())
+  name             String
+  nameSi           String?
+  nameTa           String?
+  slug             String     @unique
+  description      String?
+  descriptionSi    String?
+  descriptionTa    String?
+  price            Decimal    @db.Decimal(10, 2)
+  bulkPrice        Decimal?   @db.Decimal(10, 2)
+  minBulkQty       Int?
+  stock            Int        @default(0)
+  sku              String     @unique
+  careLevel        CareLevel
+  sunlight         String
+  watering         String
+  isIndoor         Boolean    @default(false)
+  isOutdoor        Boolean    @default(true)
+  isFeatured       Boolean    @default(false)
+  isAvailable      Boolean    @default(true)
+  weight           Float?
+  potSize          String?
+  seasonalNote     String?
+  whatsappInquiry  Boolean    @default(true)
+  imageUrl         String?
+  categoryId       String?
+  category         Category?  @relation(fields: [categoryId], references: [id])
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
